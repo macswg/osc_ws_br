@@ -53,10 +53,7 @@ function startOscListener(port) {
       timestamp: Date.now()
     };
     
-    // Log received messages
-    console.log(`OSC: ${oscMsg.address}`, data.args);
-    
-    // Broadcast to all connected browsers
+    // Broadcast to all connected browsers (OSC messages are not logged to reduce terminal spam)
     const json = JSON.stringify(data);
     clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
