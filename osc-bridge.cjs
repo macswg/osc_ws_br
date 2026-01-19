@@ -7,12 +7,18 @@ const WebSocket = require('ws');
 
 // WebSocket port - can be overridden via command line arg
 const WS_PORT = process.argv[2] ? parseInt(process.argv[2]) : 8765;
+// Default OSC port
+const DEFAULT_OSC_PORT = 7400;
 
 console.log(`Starting OSC Bridge...`);
-console.log(`WebSocket server on port: ${WS_PORT}`);
+console.log(`WebSocket server on port: ${WS_PORT} (listening on all interfaces)`);
+console.log(`OSC receiver on port: ${DEFAULT_OSC_PORT} (listening on all interfaces)`);
 
-// WebSocket server for browser connections
-const wss = new WebSocket.Server({ port: WS_PORT });
+// WebSocket server for browser connections - listen on all interfaces
+const wss = new WebSocket.Server({ 
+  port: WS_PORT,
+  host: '0.0.0.0'
+});
 const clients = new Set();
 
 // Current OSC port listener
@@ -60,7 +66,7 @@ function startOscListener(port) {
   });
 
   udpPort.on('ready', () => {
-    console.log(`OSC listening on UDP port ${port}`);
+    console.log(`OSC listening on UDP port ${port} (all interfaces)`);
     // Notify all clients that OSC is ready
     const msg = JSON.stringify({ type: 'osc_ready', port: port });
     clients.forEach(client => {
@@ -83,6 +89,9 @@ function startOscListener(port) {
 
   udpPort.open();
 }
+
+// Start OSC listener on default port
+startOscListener(DEFAULT_OSC_PORT);
 
 wss.on('connection', (ws) => {
   console.log('Browser connected');
@@ -116,5 +125,5 @@ wss.on('connection', (ws) => {
 });
 
 console.log(`\nOSC Bridge running!`);
-console.log(`WebSocket available at ws://localhost:${WS_PORT}`);
-console.log(`\nWaiting for browser to configure OSC port...`);
+console.log(`WebSocket available at ws://0.0.0.0:${WS_PORT} (accessible from all networks)`);
+console.log(`OSC receiver listening on UDP port ${DEFAULT_OSC_PORT} (accessible from all networks)`);

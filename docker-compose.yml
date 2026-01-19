@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  osc-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: osc-websocket-bridge
+    ports:
+      # WebSocket port (TCP) - accessible from all networks
+      - "8765:8765"
+      # OSC UDP port - accessible from all networks
+      - "7400:7400/udp"
+    restart: unless-stopped
+    networks:
+      - osc-network
+
+networks:
+  osc-network:
+    driver: bridge
